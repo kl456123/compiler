@@ -1,3 +1,9 @@
 
 parser
 *.o
+*.py[cod]
+y.tab.c
+y.output
+y.tab.h
+lex.yy.c
+result/*

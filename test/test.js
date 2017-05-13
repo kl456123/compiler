@@ -1,4 +1,4 @@
- /* @flow */
+/* @flow */
 //fdff
 ///asfasfasf
 // import PubNubCore from '../core/pubnub-common';
@@ -16,46 +16,34 @@
 //     super(setup);
 //   }
 // }
-function main(){
-    
- let a = 6.5;
- a = 7;
- a = sum;
- print("a  = %f",a);
- if(1){
-    let a = 3;
- }
- return 0;
-}
-function sum(let a){
- return a;
-}
-// function main(){
-//    let i= 2;
-//     while (i < 10) {
-//         i = i + 1;
 
-//         // if (i == 8) {
-//         //     break;
-//         // }
-//         print("%d! = %d", i, factor(i));
-//                 if (i == 3 || i == 5) {
-//             // continue;
+// function main()
+// {
+//     let i = 2;
+//     while (i < 10)
+//     {
+//         i = i + 1;
+//         if (i == 3 || i == 5)
+//         {
+//             continue;
+
+//         }
+//         if (i == 8)
+//         {
 //             break;
 //         }
+//         print("%d! = %d", i, factor(i));
+
 //     }
 //     return 0;
 // }
-// function factor(let i) {
-// 	let a ;
-// 	// a= function(){
-// 	// 	return 2;
-// 	// };
-//     // if (i < 2) {
-//     //     return 1;
-//     // }
-//     // return i * factor(i - 1);
-//     return 10;
+// function factor(let i)
+// {
+//     if (i < 2)
+//     {
+//         return 1;
+//     }
+//     return i * factor(i - 1);
 // }
 
 // function closure(){
@@ -64,3 +52,17 @@ function sum(let a){
 // 	};
 // }
 
+function sum(let a,let b){
+	return a + b;
+}
+
+function main(){
+	let a = 10;
+	let b = 10;
+	let c = sum(a,b);
+	let d = function(){
+		let a = 10;
+		return;
+	};
+	return ;
+}

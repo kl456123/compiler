@@ -76,6 +76,7 @@ def assemb(asmfilename):
 
 
 def check_label(label):
+    global eip
     if label == "":
         return False
 
@@ -88,6 +89,8 @@ def check_label(label):
             return False
         else:
             func_table[funcName] = len(code)
+            if funcName=='main':
+                eip = len(code) 
             return True
     else:
         if not is_valid_identifier(label) \
@@ -154,7 +157,7 @@ def init_stack():
 
 def run():
     global eip
-    eip = 0
+    
     del stack[:]
     init_stack()
     while True:
@@ -242,62 +245,77 @@ def do_exit(arg):
     exit(exit_code)
 
 
-def do_add(arg): stack[-2] += stack[-1]
-stack.pop()
+def do_add(arg):
+    stack[-2] += stack[-1]
+    stack.pop()
 
 
-def do_sub(arg): stack[-2] -= stack[-1]
-stack.pop()
+def do_sub(arg):
+    stack[-2] -= stack[-1]
+    stack.pop()
 
 
-def do_mul(arg): stack[-2] *= stack[-1]
-stack.pop()
+def do_mul(arg):
+    stack[-2] *= stack[-1]
+    stack.pop()
 
 
-def do_div(arg): stack[-2] /= stack[-1]
-stack.pop()
+def do_div(arg):
+    stack[-2] /= stack[-1]
+    stack.pop()
 
 
-def do_mod(arg): stack[-2] %= stack[-1]
-stack.pop()
+def do_mod(arg):
+    stack[-2] %= stack[-1]
+    stack.pop()
 
 
-def do_and(arg): stack[-2] = int(stack[-2] != 0 and stack[-1] != 0)
-stack.pop()
+def do_and(arg):
+    stack[-2] = int(stack[-2] != 0 and stack[-1] != 0)
+    stack.pop()
 
 
-def do_or(arg): stack[-2] = int(stack[-2] != 0 or stack[-1] != 0)
-stack.pop()
+def do_or(arg):
+    stack[-2] = int(stack[-2] != 0 or stack[-1] != 0)
+    stack.pop()
 
 
-def do_cmpeq(arg): stack[-2] = int(stack[-2] == stack[-1])
-stack.pop()
+def do_cmpeq(arg):
+    stack[-2] = int(stack[-2] == stack[-1])
+    stack.pop()
 
 
-def do_cmpne(arg): stack[-2] = int(stack[-2] != stack[-1])
-stack.pop()
+def do_cmpne(arg):
+    stack[-2] = int(stack[-2] != stack[-1])
+    stack.pop()
 
 
-def do_cmpgt(arg): stack[-2] = int(stack[-2] > stack[-1])
-stack.pop()
+def do_cmpgt(arg):
+    stack[-2] = int(stack[-2] > stack[-1])
+    stack.pop()
 
 
-def do_cmplt(arg): stack[-2] = int(stack[-2] < stack[-1])
-stack.pop()
+def do_cmplt(arg):
+    stack[-2] = int(stack[-2] < stack[-1])
+    stack.pop()
 
 
-def do_cmpge(arg): stack[-2] = int(stack[-2] >= stack[-1])
-stack.pop()
+def do_cmpge(arg):
+    stack[-2] = int(stack[-2] >= stack[-1])
+    stack.pop()
 
 
-def do_cmple(arg): stack[-2] = int(stack[-2] <= stack[-1])
-stack.pop()
+def do_cmple(arg):
+    stack[-2] = int(stack[-2] <= stack[-1])
+    stack.pop()
 
 
-def do_neg(arg): stack[-1] = -stack[-1]
+def do_neg(arg):
+    stack[-1] = -stack[-1]
 
 
-def do_not(arg): stack[-1] = int(not stack[-1])
+def do_not(arg):
+    stack[-1] = int(not stack[-1])
 
 
 def do_print(fmt):
@@ -380,13 +398,13 @@ def do_ret(arg):
     if arg == "~":
         retval = stack[-1]
     # elif arg:
-    # 	try:
-    # 		retval = int(arg)
-    # 	except ValueError:
-    # 		try:
-    # 			retval = stack[var_table[arg]]
-    # 		except KeyError:
-    # 			run_error("Undefined variable")
+    #   try:
+    #       retval = int(arg)
+    #   except ValueError:
+    #       try:
+    #           retval = stack[var_table[arg]]
+    #       except KeyError:
+    #           run_error("Undefined variable")
     else:
         retval = '/'
 

@@ -8,11 +8,17 @@ all: ${PROG}
 ${PROG}: ${OBJ}
 	gcc -o parser lex.yy.o y.tab.o -ll -ly
 
+lex.tab.o: y.tab.h
+	gcc -c lex.yy.c
+
+y.tab.o: y.tab.c
+	gcc -c y.tab.c
+
 lex.yy.c: scanner.l y.tab.c
 	flex scanner.l
 
-y.tab.c: parser.y
-	bison -vdty parser.y
+y.tab.c: new_parser.y
+	bison -vdty new_parser.y
 
 clean:
 	rm ${OBJ} ${PROG} ${OTHER}

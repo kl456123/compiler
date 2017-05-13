@@ -16,6 +16,8 @@ int ww = 0, wtop = -1, wstack[100];
 #define _END_WHILE  {wtop--;}
 #define _w          (wstack[wtop])
 
+
+
 %}
 
 %token p0   p1   p2   p3   p4   p5   p6   p7   p8   p9   p10
@@ -51,9 +53,12 @@ Pro:
 ;
 
 Func:
-    p26 FuncName p91 Args p92 p93 VarDecls Stmts p94
-                            { printf("ENDFUNC\n\n"); }
+    p26 FuncName p91 Args p92 p93 VarDecls Stmts p94 {printf("ENDFUNC_%s:\n\n",$2);}            
 ;
+
+
+Annoymous_Func:
+    p26 { printf("FUNC @:\n");}p91 Args p92 p93 VarDecls Stmts p94 {printf("ENDFUNC_%s:\n\n",$2);}
 
 FuncName:
     p200                    { printf("FUNC @%s:\n", $1); }
@@ -61,7 +66,7 @@ FuncName:
 
 Args:
     /* empty */             { /* empty */ }
-|   _Args                   { printf("\n\n"); }
+|   _Args                   {printf("\n");}
 ;
 
 _Args:
@@ -71,7 +76,7 @@ _Args:
 
 VarDecls:
     /* empty */             { /* empty */ }
-|   VarDecls VarDecl p101   { printf("\n\n"); }
+|   VarDecls VarDecl p101   
 ;
 
 VarDecl:
@@ -81,7 +86,7 @@ VarDecl:
 ;
 
 Equation:
-  p200 p121 {printf("\tvar %s\n", $1);} Expr        {printf("\tpop %s\n\n", $1);}
+  p200 p121 {printf("\tvar %s\n", $1);} Expr        {printf("\tpop %s\n", $1);}
 |  Equation p104 Equation
 ;
 
@@ -99,15 +104,20 @@ Stmt:
 |   WhileStmt               { /* empty */ }
 |   BreakStmt               { /* empty */ }
 |   ContinueStmt            { /* empty */ }
+| FuncStmt
 ;
 
+FuncStmt:
+ Func
+ ;
+
 AssignStmt:
-    p200 p121 Expr p101     { printf("\tpop %s\n\n", $1); }
+    p200 p121 Expr p101     { printf("\tpop %s\n", $1); }
 ;
 
 PrintStmt:
     p131 p91 p77 PActuals p92 p101
-                            { printf("\tprint %s\n\n", $3); }
+                            { printf("\tprint %s\n", $3); }
 ;
 
 PActuals:
@@ -116,7 +126,7 @@ PActuals:
 ;
 
 CallStmt:
-    CallExpr p101           { printf("\tpop\n\n"); }
+    CallExpr p101           { printf("\tpop\n"); }
 ;
 
 CallExpr:
@@ -149,7 +159,7 @@ StmtsBlock:
 ;
 
 If:
-    p28                     { _BEG_IF; printf("_begIf_%d:\n", _i); }
+    p28                     { _BEG_IF; /*printf("_begIf_%d:\n", _i); */}
 ;
 
 Then:
@@ -214,6 +224,7 @@ Expr:
 |   ReadInt                 { /* empty */ }
 |   CallExpr                { /* empty */ }
 |   p91 Expr p92            { /* empty */ }
+| Annoymous_Func
 ;
 
 ReadInt:
