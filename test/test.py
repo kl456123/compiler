@@ -19,11 +19,16 @@
 # type_ call by value or call by referenc
 
 
-def a():
-	a = 10
+
+def is_num(object_id):
+	for ch in object_id:
+		if not (ch=='.' or ch.isalnum()):
+			return False
+	return True
 
 
-print a()
-	
 
+a = "1513.2"
+
+print a.isdigit
 

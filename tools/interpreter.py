@@ -4,27 +4,39 @@ import sys
 import os
 from heap import Heap
 from js_heap import JSHeap
+from global_value import *
 
-
-ebp = 0
-esp = 0
-eip = 0
+# ebp = 0
+# esp = 0
+# eip = 0
 
 comment_mark = ";%"
 
 code = []
 
+type_level={'int':0,'float':1}
 
+level_type={0:'int',1:'float'}
 
+def get_result_type(type_a,type_b):
+	global type_level,level_type
+	level_a = type_level[type_a]
+	level_b = type_level[type_b]
+	level_result = level_a if level_a>level_b else level_b
+	return level_type[level_result]
 
 class Table():
 	def __init__(self):
 		self.labels_table = {}
 
 	def get_code_addr(self,label_name):
-		if label_name not in labels_table.key():
+		if label_name not in self.labels_table.keys():
 			run_error(None,"error\n")
-		return labels_table[label_name]
+		return self.labels_table[label_name]
+
+
+
+
 
 
 
@@ -32,12 +44,27 @@ table = Table()
 heap = JSHeap()
 
 
+def run_error(line,msg):
+	print msg
+	exit(-1)
+
+# inner function
+def do_print(fmt):
+	global heap
+	stack = heap.heap_addr_stack
+	if len(fmt) < 2 or fmt[0] != fmt[-1] or fmt[0] not in '"\'':
+    		run_error("Format string error")
+	argc = fmt.count("%f") + fmt.count("%d")
+	out = fmt[1:-1] % tuple(stack[len(stack) - argc:])
+	print out
+	printout.append(out)
+	del stack[len(stack) - argc:]
 
 def assemb_error(line, msg):
-	pass
+	print line,msg
+	exit(-1)
 
-def run_error(line,msg):
-	pass
+
 
 
 
@@ -105,13 +132,9 @@ def check_spaces(line):
 		return True
 	return False
 
-
-def is_validate_id(object_id):
-	pass
-
 def is_num(object_id):
 	for ch in object_id:
-		if not (ch=='.' or ch.isalnum()):
+		if not (ch=='.' or ch.isdigit()):
 			return False
 	return True
 
@@ -139,7 +162,7 @@ def assemb(asm_filename,table):
 			continue
 		# filter comments
 		elif(check_comments(line)):
-			# handle comments code if you would like to 
+			# handle comments code if you would like to
 			interpret_comments(line)
 			continue
 
@@ -154,31 +177,29 @@ def assemb(asm_filename,table):
 
 
 # run the code by eip 
-def run(heap,table):
+def run():
 	global code
-	global eip
+	# global eip
+	
 	global heap
 	global table
 	# init environment
 	
 	while True:
-		direct,arg = code[eip]
+		direct,arg = code[get_eip()]
 		action  = eval("do_"+direct)
 		next_eip = action(arg)
 		if next_eip:
-			eip = next_eip
+			set_eip(next_eip)
 		else:
-			eip +=1
-	
-
-	
+			incre_eip()
 
 def do_var(arg):
 	global heap
-	if heap.check_local_variable(arg):
+	if not heap.check_local_variable(arg):
 		heap.declare_local_valuable(arg)
 	else:
-		run_error("double declare\n!")
+		run_error(None,"double declare\n!")
 
 def do_push(arg):
 
@@ -195,7 +216,12 @@ def do_push(arg):
 		func_code_addr = table.get_code_addr(func_label)
 		arg = func_code_addr
 	else:
-		object_type='var'
+		heap_addr = heap.get_object_addr(arg)
+		if heap_addr==None:
+			run_error("uninitialized variable!\n")
+		heap_object = heap.get_object(heap_addr)
+		object_type = heap_object.object_type
+		arg = heap_object.object_value
 	heap.append_object(arg,object_type)
 
 def do_pop(arg):
@@ -207,11 +233,13 @@ def do_call(arg):
 	global heap
 	heap_addr = heap.get_object_addr(arg)
 	heap.prepare_before_call(heap_addr)
+	return get_eip()
 
 def do_ret(arg):
 	global heap
-
 	heap.prepare_before_return()
+	return get_eip()
+
 
 
 
@@ -220,23 +248,77 @@ def do_jmp(arg):
 	code_addr = table.get_code_addr(arg)
 	return code_addr
 
+
 def do_cmp(arg):
 	pass
 
-def do_add(arg,heap,table):
-	pass
+def do_two_op(op):
+	global heap
+	heap_addr_a = heap.heap_addr_stack.pop()
+	heap_addr_b = heap.heap_addr_stack.pop()
+	a = heap.get_object(heap_addr_a)
+	b = heap.get_object(heap_addr_b)
+	c_value = op(b.object_value,  a.object_value)
+	c_type = get_result_type(a.object_type,b.object_type)
+	heap.append_object(c_value,c_type)
 
-def do_sub(arg,heap,table):
-	pass
-def do_mul(arg,heap,table):
-	pass
-def do_div(arg,heap,table):
-	pass
+	# at last we should decrease sth
+	heap.check_object_count(heap_addr_a)
+	heap.check_object_count(heap_addr_b)
 
-	
+def div(a,b):
+	return a/b
+
+def mul(a,b):
+	return a*b
+
+def add(a,b):
+	return a+b
+
+def sub(a,b):
+	return a-b
+
+def do_add():
+	global add
+	do_two_op(add)
+
+def do_sub():
+	global sub
+	do_two_op(sub)
+
+def do_mul():
+	global mul
+	do_two_op(mul)
+
+def do_div():
+	global div
+	do_two_op(div)
+
+def do_FUNCBEG(arg):
+	global table
+	end_func_label = arg.replace("BEG","END")
+	end_code_addr = table.get_code_addr(end_func_label) 
+	return end_code_addr
+
+def do_arg(self,arg):
+	global heap
+	argv = arg.split(",")
+	length = len(argv)
+	# assign from right to left by order
+	while length:
+		length-=1
+		heap.declare_local_valuable(argv[length])
+		heap_addr = heap.heap_addr_stack.pop()
+		heap.set_object(argv[length],heap_addr)
+
+def do_exit(arg):
+	exit(arg)
+
+def do_print(arg):
+	print arg
 
 if __name__=="__main__":
 	
 	asm_filename = sys.argv[1]
 	assemb(asm_filename,table)
-	run(heap,table)
+	run()

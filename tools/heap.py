@@ -26,15 +26,15 @@ class Heap():
 		return new_addr		
 
 	def append(self,heap_object,new_addr=None):
-		if not new_addr:
+		if new_addr==None:
 			new_addr = self.get_new_addr()
-		elif not self.check_addr(new_addr):
+		elif not self.check_addr_available(new_addr):
 			self.error("new addr is not available!\n")
 		self.objects[new_addr] = heap_object
 		return new_addr
 
 	def delete(self,addr):
-		if self.check_addr(addr):
+		if not self.check_addr_exist(addr):
 			self.info("addr is already free\n")
 			return
 		else:
@@ -43,8 +43,9 @@ class Heap():
 			self.free_addr_num+=1
 
 	def get_object(self,addr):
-		if not self.check_addr(addr):
-			self.error("addr is not available\n")
+		if not self.check_addr_exist(addr):
+			# self.error("addr is not available\n")
+			return None
 		return self.objects[addr]
 
 	def clean_all(self):
@@ -53,10 +54,10 @@ class Heap():
 			self.free_addr_pool.append(addr)
 			self.free_addr_num+=1
 
-	def check_addr(self,addr):
-		if addr in self.free_addr_pool or addr > self.max_addr:
-			return False
-		return True
+	# def check_addr(self,addr):
+	# 	if addr not in self.objects.keys() or addr > self.max_addr:
+	# 		return False
+	# 	return True
 
 	def error(self,msg):
 		print msg
@@ -68,6 +69,18 @@ class Heap():
 	def printf(self,addr):
 		heap_object = self.get_object(addr)
 		print heap_object
+
+	def check_addr_available(self,addr):
+		if self.objects.has_key(addr) or addr >self.max_addr:
+			return False
+		return True
+
+	# def check_addr_need_save(self,addr):
+	# 	if check_addr_available(addr) and
+	def check_addr_exist(self,addr):
+		if self.objects.has_key(addr):
+			return True
+		return False
 
 if __name__=='__main__':
 	heap = Heap(2)

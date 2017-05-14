@@ -5,7 +5,7 @@ from heap import Heap
 
 class HeapObject(object):
 	def __init__(self,object_value,currect_ar_addr,object_type=None):
-		self.count = 1
+		self.count = 0
 		self.static_arp = currect_ar_addr
 		self.object_type = object_type
 		self.object_value = object_value
@@ -27,16 +27,16 @@ class HeapFuncObject(HeapObject):
 	# 		return argv
 
 class ObjectHeap(Heap):
-	def __init__(self,max_size):
-		Heap.__init__(self,max_size=100)
+	def __init__(self,max_size=100):
+		Heap.__init__(self,max_size=max_size)
 
 	def append_normal_object(self,object_value,currect_ar_addr,object_type=None):
 		normal_object = HeapnormalObject(object_value,currect_ar_addr,object_type)
-		return Heap.append(normal_object)
+		return self.append(normal_object)
 
 	def append_func_object(self,func_code_addr,currect_ar_addr,static_offset):
 		func_object = HeapFuncObject(func_code_addr,currect_ar_addr,static_offset)
-		return Heap.append(func_object)
+		return self.append(func_object)
 
 
 if __name__=='__main__':

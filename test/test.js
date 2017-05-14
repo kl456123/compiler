@@ -52,17 +52,33 @@
 // 	};
 // }
 
-function sum(let a,let b){
-	return a + b;
+// function sum(let a,let b){
+// 	return a + b;
+// }
+
+// function main(){
+// 	let a = 10;
+// 	let b = 10;
+// 	let c = sum(a,b);
+// 	let d = function(){
+// 		let a = 10;
+// 		return;
+// 	};
+// 	return ;
+// }
+
+
+let a= 10;
+
+function closure(){
+	let a = 10;
+	function sum(){
+		print("asfa",a);
+		return;
+	}
+	return sum;
 }
 
-function main(){
-	let a = 10;
-	let b = 10;
-	let c = sum(a,b);
-	let d = function(){
-		let a = 10;
-		return;
-	};
-	return ;
-}
+let s = closure();
+s();
+// res = s();

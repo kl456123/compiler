@@ -114,7 +114,7 @@ AssignStmt:
 
 PrintStmt:
     p131 p91 Param p92 p101
-                            { printf("\tprint %s\n", $3); }
+                            { printf("\tcall print\n"); }
 ;
 
 
@@ -220,6 +220,7 @@ Expr:
 |   p98 Expr                { printf("\tnot\n"); }
 |   p74                     { printf("\tpush %s\n", $1); }
 |   p200                    { printf("\tpush %s\n", $1); }
+|   p77                     {printf("\tpush %s\n",$1);}
 |   ReadInt                 { /* empty */ }
 |   CallExpr                { /* empty */ }
 |   p91 Expr p92            { /* empty */ }

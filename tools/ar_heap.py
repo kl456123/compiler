@@ -21,21 +21,21 @@ class ActivateRecord(object):
 		
 		self.caller_arp = caller_arp
 
-	def set_valuable(self,name,heap_addr=None):
+	def set_variable(self,name,heap_addr=None):
 		self.local_table[name] = heap_addr
-		self.dynamic_offset +=1
+		self.dynamic_offset = len(self.local_table.keys())
 
-	def check_valuable_exist(self,name,offset=None):
+	def check_variable_exist(self,name,offset=None):
 		if not offset:
 			offset = self.dynamic_offset
 		local_table_keys = self.local_table.keys()
 		for index in range(offset):
 			key = local_table_keys[index]
-			if self.local_table[key]==name:
+			if key==name:
 				return True
 		return False
 
-	def get_valuable_addr(self,name):
+	def get_variable_addr(self,name):
 		return self.local_table[name]
 
 class ARHeap(Heap):
@@ -45,22 +45,35 @@ class ARHeap(Heap):
 		#current_ar_addr is where current_ar will store
 		self.current_ar_addr = self.get_new_addr()
 
-	def get_valuable_addr(self,object_name):
+	def get_variable_addr(self,object_name):
 		temp_ar = self.current_ar
 		static_offset=None
 		while True:
-		if temp_ar.check_valuable_exist(object_name,static_offset):
-			return temp_ar.get_valuable_addr(object_name)
-		else:
-			static_arp = temp_ar.static_arp
-			static_offset = temp_ar.static_offset
-			if static_arp == -1:
-				# it means error
-				return -1
-			temp_ar = self.get_object(static_arp)
+			if temp_ar.check_variable_exist(object_name,static_offset):
+				return temp_ar.get_variable_addr(object_name)
+			else:
+				static_arp = temp_ar.static_arp
+				static_offset = temp_ar.static_offset
+				if static_arp == -1:
+					# it means error
+					return -1
+				temp_ar = self.get_object(static_arp)
 
 	def get_dynamic_offset(self):
 		return self.current_ar.dynamic_offset
 
 	def get_static_offset(self):
 		return self.current_ar.static_offset
+
+	def set_variable(self,name,heap_addr=None):
+		self.current_ar.set_variable(name,heap_addr)
+
+	# def check_need_store(self,addr):
+	# 	# do not refer heap_addr
+	# 	if addr in
+	def get_object(self,arp):
+		ar = Heap.get_object(self,arp)
+		if ar==None:
+			return self.current_ar
+		else:
+			return ar
