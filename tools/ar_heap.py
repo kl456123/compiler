@@ -27,9 +27,9 @@ class ActivateRecord(object):
 
 	def check_variable_exist(self,name,offset=None):
 		if not offset:
-			offset = self.dynamic_offset
+			offset = self.dynamic_offset+1
 		local_table_keys = self.local_table.keys()
-		for index in range(offset):
+		for index in range(offset-1):
 			key = local_table_keys[index]
 			if key==name:
 				return True
@@ -65,7 +65,7 @@ class ARHeap(Heap):
 	def get_static_offset(self):
 		return self.current_ar.static_offset
 
-	def set_variable(self,name,heap_addr=None):
+	def set_local_variable(self,name,heap_addr=None):
 		self.current_ar.set_variable(name,heap_addr)
 
 	# def check_need_store(self,addr):
@@ -77,3 +77,18 @@ class ARHeap(Heap):
 			return self.current_ar
 		else:
 			return ar
+
+	def set_global_variable(self,object_name,heap_addr=None):
+		temp_ar = self.current_ar
+		static_offset=None
+		while True:
+			if temp_ar.check_variable_exist(object_name,static_offset):
+				temp_ar.set_variable(object_name,heap_addr)
+				return
+			else:
+				static_arp = temp_ar.static_arp
+				static_offset = temp_ar.static_offset
+				if static_arp == -1:
+					# it means error
+					return -1
+				temp_ar = self.get_object(static_arp)		

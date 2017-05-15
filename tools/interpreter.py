@@ -11,7 +11,7 @@ from global_value import *
 # eip = 0
 
 comment_mark = ";%"
-
+global_func=['print']
 code = []
 
 type_level={'int':0,'float':1}
@@ -31,7 +31,7 @@ class Table():
 
 	def get_code_addr(self,label_name):
 		if label_name not in self.labels_table.keys():
-			run_error(None,"error\n")
+			run_error(None,"%s error\n"%label_name)
 		return self.labels_table[label_name]
 
 
@@ -55,9 +55,13 @@ def do_print(fmt):
 	if len(fmt) < 2 or fmt[0] != fmt[-1] or fmt[0] not in '"\'':
     		run_error("Format string error")
 	argc = fmt.count("%f") + fmt.count("%d")
-	out = fmt[1:-1] % tuple(stack[len(stack) - argc:])
+	heap_addr_array = stack[len(stack) - argc:]
+
+	res_array = []
+	for heap_addr in heap_addr_array:
+		res_array.append(heap.get_object(heap_addr).object_value)
+	out = fmt[1:-1] % tuple(res_array)
 	print out
-	printout.append(out)
 	del stack[len(stack) - argc:]
 
 def assemb_error(line, msg):
@@ -104,7 +108,7 @@ def check_comments(line):
 	return False
 
 def check_labels(line):
-	if(":" in line):
+	if ":" in line and "\'" not in line and "\"" not in line:
 		return True
 	return False
 
@@ -123,7 +127,7 @@ def check_func_beg_or_end(line):
 def check_directive(line):
 	direct , sep, operat = line.partition(" ")
 	# deafault all is two-operator
-	if(direct and operat):
+	if(direct):
 		return True
 	return False
 
@@ -134,7 +138,7 @@ def check_spaces(line):
 
 def is_num(object_id):
 	for ch in object_id:
-		if not (ch=='.' or ch.isdigit()):
+		if not (ch=='.' or ch.isdigit() or ch=='-'):
 			return False
 	return True
 
@@ -189,7 +193,7 @@ def run():
 		direct,arg = code[get_eip()]
 		action  = eval("do_"+direct)
 		next_eip = action(arg)
-		if next_eip:
+		if not next_eip==None:
 			set_eip(next_eip)
 		else:
 			incre_eip()
@@ -197,9 +201,9 @@ def run():
 def do_var(arg):
 	global heap
 	if not heap.check_local_variable(arg):
-		heap.declare_local_valuable(arg)
+		heap.declare_local_variable(arg)
 	else:
-		run_error(None,"double declare\n!")
+		run_error(None,"%s double declare\n!"%arg)
 
 def do_push(arg):
 
@@ -207,7 +211,12 @@ def do_push(arg):
 	global heap
 	object_type = None
 	if is_num(arg):
-		object_type = 'float' if is_float(arg) else 'int'
+		if is_float(arg):
+			object_type = 'float'
+			arg = float(arg)
+		else:
+			object_type = 'int'
+			arg = int(arg)
 	elif is_str(arg):
 		object_type = 'str'
 	elif is_func(arg):
@@ -215,23 +224,44 @@ def do_push(arg):
 		func_label = 'FUNC_BEG_' + arg[1:]
 		func_code_addr = table.get_code_addr(func_label)
 		arg = func_code_addr
-	else:
-		heap_addr = heap.get_object_addr(arg)
-		if heap_addr==None:
-			run_error("uninitialized variable!\n")
-		heap_object = heap.get_object(heap_addr)
-		object_type = heap_object.object_type
-		arg = heap_object.object_value
-	heap.append_object(arg,object_type)
+	if object_type:
+		heap.append_object(arg,object_type)
+		return
+
+	heap_addr = heap.get_object_addr(arg)
+	if heap_addr==None:
+		if arg=='':
+			arg = 'blank'
+		run_error("%s uninitialized variable!\n"%arg)
+	# heap_object = heap.get_object(heap_addr)
+	# object_type = heap_object.object_type
+	# arg = heap_object.object_value
+	heap.heap_addr_stack.append(heap_addr)
+	
 
 def do_pop(arg):
 	global heap
 	# auto get the stack top as its addr
+	if arg=='':
+		return None
 	heap.set_object(arg)
 
 def do_call(arg):
 	global heap
+	# global global_func
+	# if arg in global_func:
+	global do_print
+	if arg=='print':
+		fmt_heap_addr = heap.heap_addr_stack[-2]
+		fmt = heap.get_object(fmt_heap_addr)
+		del heap.heap_addr_stack[-2]
+		do_print(fmt.object_value)
+		return None
 	heap_addr = heap.get_object_addr(arg)
+	if heap_addr==None:
+		if arg=='':
+			arg = 'blank'
+		run_error(None,"%s uninitialized variable!\n"%arg)
 	heap.prepare_before_call(heap_addr)
 	return get_eip()
 
@@ -249,8 +279,15 @@ def do_jmp(arg):
 	return code_addr
 
 
-def do_cmp(arg):
-	pass
+def do_jz(arg):
+	global heap,table
+	new_eip = table.get_code_addr(arg)
+	heap_addr = heap.heap_addr_stack.pop()
+	heap_object = heap.get_object(heap_addr)
+	if heap_object.object_value == 0:
+		return new_eip
+	else:
+		return None
 
 def do_two_op(op):
 	global heap
@@ -278,19 +315,19 @@ def add(a,b):
 def sub(a,b):
 	return a-b
 
-def do_add():
+def do_add(arg):
 	global add
 	do_two_op(add)
 
-def do_sub():
+def do_sub(arg):
 	global sub
 	do_two_op(sub)
 
-def do_mul():
+def do_mul(arg):
 	global mul
 	do_two_op(mul)
 
-def do_div():
+def do_div(arg):
 	global div
 	do_two_op(div)
 
@@ -299,23 +336,56 @@ def do_FUNCBEG(arg):
 	end_func_label = arg.replace("BEG","END")
 	end_code_addr = table.get_code_addr(end_func_label) 
 	return end_code_addr
+def do_FUNCEND(arg):
+	do_ret('')
 
-def do_arg(self,arg):
+def do_arg(arg):
 	global heap
 	argv = arg.split(",")
 	length = len(argv)
 	# assign from right to left by order
 	while length:
 		length-=1
-		heap.declare_local_valuable(argv[length])
-		heap_addr = heap.heap_addr_stack.pop()
-		heap.set_object(argv[length],heap_addr)
+		heap.declare_local_variable(argv[length])
+		# heap_addr = heap.heap_addr_stack.pop()
+		heap.set_object(argv[length])
 
 def do_exit(arg):
-	exit(arg)
+	exit(int(arg))
 
-def do_print(arg):
-	print arg
+def do_cmpeq(arg):
+	# global heap
+	do_two_op(cmpeq)
+
+def cmpeq(a,b):
+	return int(a==b)
+
+def do_cmpgt(arg):
+	
+	do_two_op(cmpgt)
+
+def cmpgt(a,b):
+	return int(a>b)
+
+def do_cmplt(arg):
+	do_two_op(cmplt)
+def cmplt(a,b):
+	return int(a<b)
+
+def do_cmpne(arg):
+	do_two_op(cmpne)
+def cmpne(a,b):
+	return int(not a==b)
+
+def do_and(arg):
+	do_two_op(_and)
+def _and(a,b):
+	return int(a and b)
+def do_or(arg):
+	do_two_op(_or)
+
+def _or(a,b):
+	return int(a or b)
 
 if __name__=="__main__":
 	

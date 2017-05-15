@@ -63,15 +63,26 @@
 
 // test("safagag")
 // 
+// function main(){
+// 	let a = 10;
+// 	return function(){
+// 		return a;
+// 	}
+// }
+
+// sum = main()
+
+// let a = sum()
+// delete sum
+// console.log(a)
+// 
+let a ;
+
+
 function main(){
-	let a = 10;
-	return function(){
-		return a;
-	}
+	console.log(a);
 }
 
-sum = main()
+a=10;
 
-let a = sum()
-delete sum
-console.log(a)
+main();

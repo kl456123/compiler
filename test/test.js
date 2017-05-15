@@ -68,17 +68,47 @@
 // }
 
 
-let a= 10;
+// let a= 11;
+// let b = 10;
+// function closure(){
+// 	// let a = 5;
+// 	function sum(let a ,let b){
+// 		print("asfa%d",a+b);
+// 		return;
+// 	}
+// 	return sum;
+// }
 
-function closure(){
-	let a = 10;
-	function sum(){
-		print("asfa",a);
-		return;
-	}
-	return sum;
-}
-
-let s = closure();
-s();
+// let s = closure();
+// s(a,b);
 // res = s();
+// 
+// let addt;
+// function counter(){
+// 	let count = 10;
+// 	function add(){
+// 		while(count>2){
+// 			count= count-1;
+// 		}
+// 		// return ;
+// 	}
+// 	addt = add;
+// 	function display(){
+// 		print("res%d",count);
+// 		// return ;
+// 	}
+// 	return display;
+// }
+
+// let display = counter();
+
+// addt();
+
+// display();
+let a = 5;
+
+let change = function (){
+	print("res:%d",a);
+};
+// need ';' otherwise throw error
+change();

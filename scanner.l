@@ -103,8 +103,8 @@ length 			 { return p70;}
 Math 			 { return p71;}
 NaN 			 { return p72;}
 name 			 { return p73;}
--?[0-9]+ 		 {yylval=strdup(yytext); return p74;}
--?[0-9]+\.[0-9]* {yylval=strdup(yytext); return p74;}
+[0-9]+ 		 {yylval=strdup(yytext); return p74;}
+[0-9]+\.[0-9]* {yylval=strdup(yytext); return p74;}
 Object 			 { return p75;}
 prototype 		 { return p76;}
 toString 		 { return p78;}

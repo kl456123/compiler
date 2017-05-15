@@ -48,13 +48,20 @@ class JSHeap(object):
 		else:
 			self.append_normal_object(x,object_type)
 
-	def declare_local_valuable(self,object_name):
-		self.ar_heap.set_variable(object_name,None)
+	def declare_local_variable(self,object_name):
+		self.ar_heap.set_local_variable(object_name,None)
+
+	def set_local_variable(self,object_name,heap_addr):
+		self.ar_heap.set_local_variable(object_name,heap_addr)
+
+	def set_global_variable(self,object_name,heap_addr):
+		if self.ar_heap.set_global_variable(object_name,heap_addr)==-1:
+			self.error('%s unreference variable\n'%object_name)
 
 	def get_object_addr(self,object_name):
 		heap_addr = self.ar_heap.get_variable_addr(object_name)
 		if heap_addr==-1:
-			self.error("unreference variable!\n")
+			self.error("%s unreference variable!\n"%object_name)
 		# elif heap_addr==None:
 		# 	self.error("uninitialized variable!\n")
 		else:
@@ -64,18 +71,20 @@ class JSHeap(object):
 		return self.ar_heap.current_ar.check_variable_exist(object_name)
 
 	def get_object(self,heap_addr):
+		if heap_addr==None:
+			self.error("param addr is None!\n")
 		return self.object_heap.get_object(heap_addr)
 
 	def set_object(self,object_name,new_heap_addr=None):
-		if not new_heap_addr:
+		if new_heap_addr==None:
 			# get addr from statck
 			new_heap_addr = self.heap_addr_stack.pop()
 		old_heap_addr = self.get_object_addr(object_name)
 		# check if the previous addr is None or not
-		if old_heap_addr:
-			self.decrease_count(old_heap_addr)
-		self.ar_heap.set_variable(object_name,new_heap_addr)
-		self.increase_count(new_heap_addr)
+		# if old_heap_addr:
+		# 	self.decrease_count(old_heap_addr)
+		self.set_global_variable(object_name,new_heap_addr)
+		# self.increase_count(new_heap_addr)
 
 
 
@@ -89,7 +98,7 @@ class JSHeap(object):
 
 
 	def increase_normal_count(self,heap_addr):
-		heap_object = self.object_heap.get_object(heap_addr)
+		heap_object = self.get_object(heap_addr)
 		heap_object.count+=1
 
 	def decrease_func_count(self,heap_addr):
@@ -102,7 +111,7 @@ class JSHeap(object):
 		# 	self.object_heap.delete(heap_addr)
 	
 	def decrease_normal_count(self,heap_addr):
-		heap_object = self.object_heap.get_object(heap_addr)
+		heap_object = self.get_object(heap_addr)
 		heap_object.count-=1
 		# if count is 0 ,delete it !
 		# if heap_object.count<1:
@@ -115,6 +124,8 @@ class JSHeap(object):
 		self.xcrease_count(heap_addr,'de')
 
 	def xcrease_count(self,heap_addr,x):
+		if heap_addr==None:
+			return
 		if x=='in':
 			xcrease_func_count = self.increase_func_count
 			xcrease_normal_count = self.increase_normal_count
@@ -122,7 +133,7 @@ class JSHeap(object):
 			xcrease_func_count = self.decrease_func_count
 			xcrease_normal_count = self.decrease_normal_count
 
-		heap_object = self.object_heap.get_object(heap_addr)
+		heap_object = self.get_object(heap_addr)
 		if heap_object.object_type=='func':
 			xcrease_func_count(heap_addr)
 		else:
@@ -187,7 +198,7 @@ class JSHeap(object):
 			self.ar_heap.append(self.ar_heap.current_ar,self.ar_heap.current_ar_addr)
 
 		# then handle new ar
-		func_object = self.object_heap.get_object(heap_addr)
+		func_object = self.get_object(heap_addr)
 		new_static_arp = func_object.static_arp
 		new_static_offset = func_object.static_offset
 
@@ -208,7 +219,7 @@ class JSHeap(object):
 		# heap_addr = self.heap_addr_stack[-1]
 		# self.just_increase_self(heap_addr)
 
-		self.decrease_ar_local(self.ar_heap.current_ar_addr,self.ar_heap.get_dynamic_offset()+1)
+		# self.decrease_ar_local(self.ar_heap.current_ar_addr,self.ar_heap.get_dynamic_offset()+1)
 
 		# store current ar
 		self.ar_heap.append(self.ar_heap.current_ar,self.ar_heap.current_ar_addr)

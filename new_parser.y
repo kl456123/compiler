@@ -92,7 +92,7 @@ Stmt:
 
 
 VarDecls:
- VarDecl p101
+ VarDecl p101 {printf("\n");}
 ;
 
 VarDecl:
@@ -224,16 +224,20 @@ Expr:
 |   ReadInt                 { /* empty */ }
 |   CallExpr                { /* empty */ }
 |   p91 Expr p92            { /* empty */ }
-| Annoymous_Func  
+| NegativeNum
+| Annoymous_Func
 ;
 
 ReadInt:
     p132 p91 p77 p92        { printf("\treadint %s\n", $3); }
 ;
 
+NegativeNum:
+p88 p74{printf("\tpush -%s\n",$2);}
+;
 
 Annoymous_Func:
-    p26 {_BEG_FUNC; printf("\nFUNC_BEG_%d:\n",_f);} p91 Args p92 p93 Pro p94 {printf("FUNC_END_%d:\n\n",_f); _END_FUNC;}
+    p26 {_BEG_FUNC; printf("\nFUNC_BEG_%d:\n",_f);} p91 Args p92 p93 Pro p94 {printf("FUNC_END_%d:\n\n",_f);printf("\tpush @%d\n",_f); _END_FUNC;}
 
 %%
 

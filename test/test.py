@@ -20,15 +20,31 @@
 
 
 
-def is_num(object_id):
-	for ch in object_id:
-		if not (ch=='.' or ch.isalnum()):
-			return False
-	return True
+# def check_directive(line):
+# 	direct , sep, operat = line.partition(" ")
+# 	# deafault all is two-operator
+# 	if(direct and operat):
+# 		return True
+# 	return False
 
 
+# line = "push"
 
-a = "1513.2"
+# print check_directive(line)
+# 
+def run_error(msg):
+	print msg
 
-print a.isdigit
+a=10
+
+msg = "res%d\n" %a
+
+run_error(msg)
+
+def interpret_directive(line):
+	direct , sep, tail = line.partition(" ")
+	print(direct,tail)
+
+interpret_directive(msg)
+
 
