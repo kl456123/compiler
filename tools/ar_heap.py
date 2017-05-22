@@ -27,9 +27,11 @@ class ActivateRecord(object):
 
 	def check_variable_exist(self,name,offset=None):
 		if not offset:
-			offset = self.dynamic_offset+1
+			offset = self.dynamic_offset
+		else:
+			offset-=1
 		local_table_keys = self.local_table.keys()
-		for index in range(offset-1):
+		for index in range(offset):
 			key = local_table_keys[index]
 			if key==name:
 				return True

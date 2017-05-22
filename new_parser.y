@@ -72,8 +72,8 @@ Args:
 ;
 
 _Args:
-    p35 p200                { printf("\targ %s", $2); }
-|   _Args p104 p35 p200     { printf(", %s", $4); }
+     p200                { printf("\targ %s", $1); }
+|   _Args p104  p200     { printf(",%s", $3); }
 ;
     
 

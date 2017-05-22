@@ -16,6 +16,8 @@ class Heap():
 		for addr in range(size):
 			self.free_addr_pool.append(addr)
 		self.free_addr_num = size
+	def get_size(self):
+		return len(self.objects.keys())
 
 	def get_new_addr(self):
 		if not self.free_addr_num:
@@ -61,7 +63,8 @@ class Heap():
 
 	def error(self,msg):
 		print msg
-		exit(-1)
+		# exit(-1)
+		raise Exception(msg)
 
 	def info(self,msg):
 		print msg

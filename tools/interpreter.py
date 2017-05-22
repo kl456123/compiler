@@ -192,7 +192,14 @@ def run():
 	while True:
 		direct,arg = code[get_eip()]
 		action  = eval("do_"+direct)
-		next_eip = action(arg)
+		try:
+			next_eip = action(arg)
+		except Exception as e:
+			print get_eip(), code[get_eip()]
+			raise e
+
+
+		
 		if not next_eip==None:
 			set_eip(next_eip)
 		else:
@@ -300,8 +307,8 @@ def do_two_op(op):
 	heap.append_object(c_value,c_type)
 
 	# at last we should decrease sth
-	heap.check_object_count(heap_addr_a)
-	heap.check_object_count(heap_addr_b)
+	# heap.check_object_count(heap_addr_a)
+	# heap.check_object_count(heap_addr_b)
 
 def div(a,b):
 	return a/b

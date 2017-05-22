@@ -52,20 +52,24 @@
 // 	};
 // }
 
-// function sum(let a,let b){
+// function sum(a,b){
 // 	return a + b;
 // }
 
 // function main(){
 // 	let a = 10;
-// 	let b = 10;
+// 	let b = 10.5;
 // 	let c = sum(a,b);
-// 	let d = function(){
-// 		let a = 10;
-// 		return;
-// 	};
-// 	return ;
+// 	// let d = function(){
+// 	// 	let a = 10;
+// 	// 	return;
+// 	// };
+// 	return c;
 // }
+// let b =10;
+// b= main();
+// // console.log(b)
+// print("result: %f",b);
 
 
 // let a= 11;
@@ -105,10 +109,80 @@
 // addt();
 
 // display();
-let a = 5;
+//  b = 15;
 
-let change = function (){
-	print("res:%d",a);
-};
-// need ';' otherwise throw error
-change();
+// let change = function (){
+// 	print("res:%d",b);
+// };
+// // need ';' otherwise throw error
+// change();
+
+// let Add;
+// let Display;
+// function Counter(){
+// 	let count = 0;
+// 	let m = 10;
+// 	function Add(){
+// 		count=count+1;
+// 	}
+// 	Display = function(){
+// 		print("count: %d",count);
+// 		print("m: %d",m);
+// 	};
+// 	return Add;
+
+// }
+
+// Add = Counter();
+
+// // Add();
+// // Add();
+// let i = 10;
+// while(i){
+// 	Add();
+// 	i=i-1;
+// }
+
+// Display();
+// function main(){
+// 	let a = 10;
+// 	let c= 1000;
+// 	function demo(){
+// 		let b = 100;
+// 		a=20;
+// 		return function(){
+// 			// b=10;
+// 			print("b: %d",b);
+// 			print("a: %d",a);
+// 			print("c: %d",c);
+// 		};
+// 	}
+// 	let display = demo();
+// 	display();
+// }
+
+// main();
+// 
+
+// function a(){
+// // a = 10;
+// }
+
+// console.log(a)
+// 
+
+
+// let a ;
+
+// let b = 10;
+// print("%d",b);
+// 
+let i=0;
+function add(){
+	i=i+1;
+}
+while (i<2000){
+	add();
+}
+
+print("i %d",i);
